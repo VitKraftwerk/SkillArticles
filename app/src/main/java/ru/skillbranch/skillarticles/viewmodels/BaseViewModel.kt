@@ -69,8 +69,8 @@ abstract class BaseViewModel<T>(initState: T) : ViewModel() {
      * изменяет его и возвращает модифицированное состояние, которое устанавливается как текущее
      */
     protected fun <S> subscribeOnDataSource(
-        source: LiveData<S>,
-        onChanged: (newValue: S, currentState: T) -> T?
+            source: LiveData<S>,
+            onChanged: (newValue: S, currentState: T) -> T?
     ) {
         state.addSource(source) {
             state.value = onChanged(it, currentState) ?: return@addSource
@@ -89,7 +89,7 @@ class ViewModelFactory(private val params: String) : ViewModelProvider.Factory {
 }
 
 class Event<out E>(private val content: E) {
-    var hasBeenHandled = false
+    private var hasBeenHandled = false
 
     /***
      * возвращает контент который еще не был обработан иначе null
@@ -124,14 +124,14 @@ sealed class Notify(val message: String) {
     data class TextMessage(val msg: String) : Notify(msg)
 
     data class ActionMessage(
-        val msg: String,
-        val actionLabel: String,
-        val actionHandler: (() -> Unit)
+            val msg: String,
+            val actionLabel: String,
+            val actionHandler: (() -> Unit)
     ) : Notify(msg)
 
     data class ErrorMessage(
-        val msg: String,
-        val errLabel: String?,
-        val errHandler: (() -> Unit)?
+            val msg: String,
+            val errLabel: String?,
+            val errHandler: (() -> Unit)?
     ) : Notify(msg)
 }
