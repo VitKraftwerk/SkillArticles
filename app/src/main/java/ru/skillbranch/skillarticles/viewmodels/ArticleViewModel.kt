@@ -19,7 +19,8 @@ class ArticleViewModel(private val articleId: String) : IArticleViewModel, BaseV
                     title = article.title,
                     category =  article.category,
                     categoryIcon = article.categoryIcon,
-                    date = article.date.format()
+                    date = article.date.format(),
+                    author = article.author
             )
         }
 
@@ -73,8 +74,23 @@ class ArticleViewModel(private val articleId: String) : IArticleViewModel, BaseV
     }
 
     override fun handleBookmark() {
-        val msg = "Bookmark is not implemented"
-        notify(Notify.ErrorMessage(msg, "OK", null))
+        val toggleBookmark = {
+            val info = currentState.toArticlePersonalInfo()
+            repository.updateArticlePersonalInfo(info.copy(isBookmark = !info.isBookmark))
+        }
+
+        toggleBookmark()
+
+        val msg = if(currentState.isBookmark) Notify.TextMessage("Add to bookmarks")
+        else{
+            Notify.ActionMessage(
+                "Remove from bookmarks",
+                "No, still bookmark it",
+                toggleBookmark
+            )
+        }
+
+        notify(msg)
     }
 
     override fun handleLike() {
