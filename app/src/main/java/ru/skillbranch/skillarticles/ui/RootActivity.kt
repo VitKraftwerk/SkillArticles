@@ -1,10 +1,15 @@
 package ru.skillbranch.skillarticles.ui
 
+import android.app.SearchManager
+import android.content.Context
 import android.os.Bundle
+import android.view.Menu
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.Toolbar
+import androidx.core.view.get
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
@@ -17,7 +22,12 @@ import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
 import ru.skillbranch.skillarticles.viewmodels.Notify
 import ru.skillbranch.skillarticles.viewmodels.ViewModelFactory
 
+
 class RootActivity : AppCompatActivity() {
+
+    companion object {
+        val SEARCH_KEY = "SEARCH_KEY"
+    }
 
     private lateinit var viewModel: ArticleViewModel
 
@@ -37,6 +47,27 @@ class RootActivity : AppCompatActivity() {
         viewModel.observeNotifications(this) {
             renderNotification(it)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.appbar_menu, menu)
+
+        if(viewModel.currentState.isSearch) {
+            val searchItem = menu?.get(0)
+            val searchView = searchItem?.actionView as SearchView
+
+            searchView?.setQuery(viewModel.currentState.searchQuery, true)
+            searchView?.clearFocus()
+        }
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        val search = findViewById<SearchView>(R.id.action_search)
+        viewModel.handleSearch(search.query.toString())
+        viewModel.handleSearchMode(search.isInTouchMode)
     }
 
     private fun renderNotification(notify: Notify) {
